@@ -1,0 +1,9 @@
+node_modules/
+.env
+*.log
+.DS_Store
+
+# User-uploaded content — not source, don't version it.
+# The folder itself is kept via public/uploads/.gitkeep
+public/uploads/*
+!public/uploads/.gitkeep

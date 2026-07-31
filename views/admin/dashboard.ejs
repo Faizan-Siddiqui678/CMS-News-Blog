@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - News CMS Admin</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="admin-wrap">
+    <nav class="admin-nav">
+      <span class="admin-logo">📰 News CMS Admin</span>
+      <div class="admin-nav-links">
+        <a href="/admin/dashboard">Posts</a>
+        <a href="/admin/categories">Categories</a>
+        <a href="/">All</a>
+        <% categories.forEach(function(cat) { %>
+          <a href="/category/<%= cat.slug %>"><%= cat.name %></a>
+        <% }) %>
+        <a href="/logout">Logout</a>
+      </div>
+    </nav>
+
+    <div class="admin-content">
+      <div class="admin-header-row">
+        <h1>All Posts</h1>
+        <a href="/admin/posts/new" class="btn-primary">+ New Post</a>
+      </div>
+
+      <% if (typeof error !== 'undefined' && error) { %>
+        <p class="alert alert-error"><%= error %></p>
+      <% } %>
+      <% if (typeof success !== 'undefined' && success) { %>
+        <p class="alert alert-success"><%= success %></p>
+      <% } %>
+
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Title</th>
+            <th>Category</th>
+            <th>Views</th>
+            <th>Likes</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (posts.length === 0) { %>
+            <tr><td colspan="7" class="empty">No posts yet.</td></tr>
+          <% } else { %>
+            <% posts.forEach(function(post) { %>
+              <tr>
+                <td>
+                  <% if (post.featuredImage) { %>
+                    <img src="<%= post.featuredImage %>" alt="" class="admin-thumb">
+                  <% } else { %>
+                    <span class="admin-thumb admin-thumb-empty">📰</span>
+                  <% } %>
+                </td>
+                <td><%= post.title %></td>
+                <td><%= post.category.name %></td>
+                <td><%= post.views %></td>
+                <td><%= post.likes %></td>
+                <td><%= post.createdAt.toDateString() %></td>
+                <td class="actions">
+                  <a href="/post/<%= post.slug %>" target="_blank">View</a>
+                  <a href="/admin/posts/edit/<%= post._id %>">Edit</a>
+                  <form action="/admin/posts/delete/<%= post._id %>" method="POST" class="inline-form">
+                    <button type="submit" class="delete-btn" onclick="return confirm('Delete this post?')">Delete</button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

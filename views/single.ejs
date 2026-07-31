@@ -1,0 +1,82 @@
+<%- include('partials/header') %>
+
+<article class="single-post">
+  <% if (post.featuredImage) { %>
+    <div class="single-post-image">
+      <img src="<%= post.featuredImage %>" alt="<%= post.title %>">
+    </div>
+  <% } %>
+
+  <span class="post-category"><%= post.category.name %></span>
+  <h1><%= post.title %></h1>
+
+  <div class="post-meta">
+    <span>👁 <%= post.views %> views</span>
+    <span>❤️ <span id="like-count"><%= post.likes %></span> likes</span>
+    <span><%= post.createdAt.toDateString() %></span>
+  </div>
+
+  <div class="post-content">
+    <%- post.content %>
+  </div>
+
+  <div class="like-section">
+    <button
+      id="like-btn"
+      data-id="<%= post._id %>"
+      class="<%= hasLiked ? 'liked' : '' %>"
+      aria-pressed="<%= hasLiked ? 'true' : 'false' %>"
+    >
+      <span class="like-icon"><%= hasLiked ? '❤️' : '🤍' %></span>
+      <span class="like-label"><%= hasLiked ? 'Liked' : 'Like' %></span>
+    </button>
+  </div>
+</article>
+
+<section class="comments-section">
+  <h2>Comments (<%= comments.length %>)</h2>
+
+  <%
+    const commentError = typeof error !== 'undefined' && error ? error : null;
+  %>
+  <% if (commentError) { %>
+    <div class="alert alert-error"><%= commentError %></div>
+  <% } %>
+
+  <%
+    const isUser  = user && user.role === 'user';
+    const isAdmin = user && user.role === 'admin';
+  %>
+
+  <% if (isUser) { %>
+    <form action="/post/<%= post.slug %>/comment" method="POST" class="comment-form">
+      <textarea name="comment" placeholder="Write a comment..." required></textarea>
+      <button type="submit">Post Comment</button>
+    </form>
+  <% } else if (isAdmin) { %>
+    <p class="admin-notice">
+      🔒 You are viewing as <strong>Admin</strong>.
+      Comments can only be posted by registered users.
+    </p>
+  <% } else { %>
+    <p class="login-prompt">
+      <a href="/login">Log in</a> or <a href="/register">register</a> to leave a comment.
+    </p>
+  <% } %>
+
+  <div class="comments-list">
+    <% if (comments.length === 0) { %>
+      <p class="empty">No comments yet. Be the first!</p>
+    <% } else { %>
+      <% comments.forEach(function(c) { %>
+        <div class="comment">
+          <p class="comment-name">👤 <%= c.user ? c.user.username : "Deleted user" %></p>
+          <p class="comment-text"><%= c.comment %></p>
+          <p class="comment-date"><%= c.createdAt.toDateString() %></p>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-top">
+      <a href="/" class="site-logo">📰 News<span>CMS</span></a>
+
+      <form action="/search" method="GET" class="search-form">
+        <input type="text" name="q" placeholder="Search news..."
+               value="<%= typeof query !== 'undefined' ? query : '' %>">
+        <button type="submit" aria-label="Search">🔍</button>
+      </form>
+
+      <button type="button" id="navToggle" class="nav-toggle"
+              aria-label="Toggle categories" aria-expanded="false" aria-controls="categoryNav">
+        <span></span><span></span><span></span>
+      </button>
+
+      <% if (typeof user !== 'undefined' && user) { %>
+        <div class="user-menu">
+          <% if (user.role === 'admin') { %>
+            <span class="user-name admin-badge">🛡️ Admin</span>
+            <a href="/admin/dashboard" class="admin-link">Dashboard</a>
+          <% } else { %>
+            <span class="user-name">👤 <%= user.username %></span>
+          <% } %>
+          <a href="/logout">Log Out</a>
+        </div>
+      <% } %>
+    </div>
+
+    <nav class="category-nav" id="categoryNav">
+      <a href="/" class="<%= !category ? 'active' : '' %>">All</a>
+      <% categories.forEach(function(cat) { %>
+        <a href="/category/<%= cat.slug %>"
+           class="<%= category && category.slug === cat.slug ? 'active' : '' %>">
+          <%= cat.name %>
+        </a>
+      <% }) %>
+    </nav>
+  </header>
+
+  <main class="site-main">

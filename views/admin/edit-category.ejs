@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Category - News CMS Admin</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="admin-wrap">
+    <nav class="admin-nav">
+      <span class="admin-logo">📰 News CMS Admin</span>
+      <div class="admin-nav-links">
+        <a href="/admin/dashboard">Posts</a>
+        <a href="/admin/categories">Categories</a>
+        <a href="/">All</a>
+        <% categories.forEach(function(cat) { %>
+          <a href="/category/<%= cat.slug %>"><%= cat.name %></a>
+        <% }) %>
+        <a href="/logout">Logout</a>
+      </div>
+    </nav>
+
+    <div class="admin-content">
+      <h1>Edit Category</h1>
+
+      <% if (typeof error !== 'undefined' && error) { %>
+        <p class="alert alert-error"><%= error %></p>
+      <% } %>
+
+      <form action="/admin/categories/update/<%= category._id %>" method="POST" class="post-form">
+        <label>Name</label>
+        <input type="text" name="name" value="<%= category.name %>" required>
+
+        <button type="submit" class="btn-primary">Update Category</button>
+      </form>
+
+      <a href="/admin/categories" class="back-link">← Back to Categories</a>
+    </div>
+  </div>
+</body>
+</html>

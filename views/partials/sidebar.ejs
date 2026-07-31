@@ -1,0 +1,41 @@
+<aside class="content-sidebar">
+  <div class="sidebar-widget">
+    <h3 class="widget-title">Recent Posts</h3>
+
+    <% if (typeof recentPosts === 'undefined' || recentPosts.length === 0) { %>
+      <p class="widget-empty">No posts yet.</p>
+    <% } else { %>
+      <div class="recent-post-list">
+        <% recentPosts.forEach(function(rp) { %>
+          <a href="/post/<%= rp.slug %>" class="recent-post">
+            <span class="recent-post-thumb">
+              <% if (rp.featuredImage) { %>
+                <img src="<%= rp.featuredImage %>" alt="<%= rp.title %>" loading="lazy">
+              <% } else { %>
+                <span class="recent-post-thumb-fallback" aria-hidden="true">📰</span>
+              <% } %>
+            </span>
+            <span class="recent-post-info">
+              <span class="recent-post-title"><%= rp.title %></span>
+              <span class="recent-post-meta">
+                <% if (rp.category) { %><span class="recent-post-category"><%= rp.category.name %></span><% } %>
+                <span class="recent-post-date"><%= rp.createdAt.toDateString() %></span>
+              </span>
+            </span>
+          </a>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+
+  <% if (typeof categories !== 'undefined' && categories.length > 0) { %>
+    <div class="sidebar-widget">
+      <h3 class="widget-title">Categories</h3>
+      <div class="sidebar-category-list">
+        <% categories.forEach(function(cat) { %>
+          <a href="/category/<%= cat.slug %>" class="sidebar-category-link"><%= cat.name %></a>
+        <% }) %>
+      </div>
+    </div>
+  <% } %>
+</aside>

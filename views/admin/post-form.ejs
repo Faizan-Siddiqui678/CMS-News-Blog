@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= post ? "Edit Post" : "New Post" %> - News CMS Admin</title>
+  <link rel="stylesheet" href="/css/style.css">
+
+  <!-- Summernote needs Bootstrap CSS + jQuery to render its toolbar correctly -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.20/summernote-bs5.min.css">
+</head>
+<body>
+  <div class="admin-wrap">
+    <nav class="admin-nav">
+      <span class="admin-logo">📰 News CMS Admin</span>
+      <div class="admin-nav-links">
+        <a href="/admin/dashboard">Posts</a>
+        <a href="/admin/categories">Categories</a>
+        <a href="/">All</a>
+        <% categories.forEach(function(cat) { %>
+          <a href="/category/<%= cat.slug %>"><%= cat.name %></a>
+        <% }) %>
+        <a href="/logout">Logout</a>
+      </div>
+    </nav>
+
+    <div class="admin-content">
+      <h1><%= post ? "Edit Post" : "New Post" %></h1>
+
+      <% if (typeof error !== 'undefined' && error) { %>
+        <p class="alert alert-error"><%= error %></p>
+      <% } %>
+
+      <form
+        action="<%= post ? '/admin/posts/edit/' + post._id : '/admin/posts/new' %>"
+        method="POST"
+        enctype="multipart/form-data"
+        class="post-form"
+      >
+        <label>Title</label>
+        <input type="text" name="title" value="<%= post ? post.title : '' %>" required>
+
+        <label>Category</label>
+        <select name="category" required>
+          <option value="" disabled <%= !post ? "selected" : "" %>>Select a category</option>
+          <% categories.forEach(function(cat) { %>
+            <option
+              value="<%= cat._id %>"
+              <%= post && String(post.category._id || post.category) === String(cat._id) ? "selected" : "" %>
+            >
+              <%= cat.name %>
+            </option>
+          <% }) %>
+        </select>
+
+        <label>Featured image</label>
+        <div class="image-upload-field">
+          <label for="featuredImageInput" class="image-drop">
+            <img
+              id="featuredImagePreview"
+              src="<%= post && post.featuredImage ? post.featuredImage : '' %>"
+              alt="Featured image preview"
+              class="<%= post && post.featuredImage ? '' : 'hidden' %>"
+            >
+            <span id="imageDropText" class="<%= post && post.featuredImage ? 'hidden' : '' %>">
+              🖼️ Click to upload a cover image<br><small>JPEG, PNG, GIF or WEBP · up to 5MB</small>
+            </span>
+          </label>
+          <input type="file" id="featuredImageInput" name="featuredImage" accept="image/jpeg,image/png,image/gif,image/webp">
+          <% if (post && post.featuredImage) { %>
+            <p class="image-hint">Uploading a new file will replace the current image.</p>
+          <% } %>
+        </div>
+
+        <label>Content</label>
+        <textarea name="content" id="editor"><%= post ? post.content : "" %></textarea>
+
+        <button type="submit" class="btn-primary"><%= post ? "Update Post" : "Publish Post" %></button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Summernote dependencies -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.20/summernote-bs5.min.js"></script>
+  <script>
+    // Live preview for the featured image picker
+    const featuredInput = document.getElementById('featuredImageInput');
+    const featuredPreview = document.getElementById('featuredImagePreview');
+    const dropText = document.getElementById('imageDropText');
+
+    if (featuredInput) {
+      featuredInput.addEventListener('change', function () {
+        const file = this.files && this.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          featuredPreview.src = e.target.result;
+          featuredPreview.classList.remove('hidden');
+          dropText.classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    $(document).ready(function () {
+      $('#editor').summernote({
+        height: 350,
+        placeholder: 'Write the article here...',
+        callbacks: {
+          // Runs whenever an image is dropped/pasted/selected in the toolbar.
+          // Instead of Summernote's default (embed as base64), we upload it
+          // to our own server and insert the returned URL instead.
+          onImageUpload: function (files) {
+            const data = new FormData();
+            data.append('image', files[0]);
+
+            fetch('/admin/posts/upload-image', {
+              method: 'POST',
+              body: data,
+            })
+              .then((res) => res.json())
+              .then((result) => {
+                if (result.url) {
+                  $('#editor').summernote('insertImage', result.url);
+                } else {
+                  alert(result.error || 'Image upload failed');
+                }
+              })
+              .catch(() => alert('Image upload failed'));
+          },
+        },
+      });
+    });
+  </script>
+</body>
+</html>

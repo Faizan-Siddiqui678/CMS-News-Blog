@@ -1,0 +1,43 @@
+<%- include('partials/header') %>
+
+<div class="content-layout">
+  <div class="content-main">
+    <% if (posts.length === 0) { %>
+      <p class="empty">No news yet. Check back soon.</p>
+    <% } else { %>
+      <article class="hero-post">
+        <a href="/post/<%= posts[0].slug %>" class="hero-post-link">
+          <div class="hero-post-image">
+            <% if (posts[0].featuredImage) { %>
+              <img src="<%= posts[0].featuredImage %>" alt="<%= posts[0].title %>">
+            <% } else { %>
+              <span class="hero-post-fallback" aria-hidden="true">📰</span>
+            <% } %>
+          </div>
+          <div class="hero-post-body">
+            <span class="post-category"><%= posts[0].category.name %></span>
+            <h1><%= posts[0].title %></h1>
+            <div class="post-meta">
+              <span>👁 <%= posts[0].views %> views</span>
+              <span>❤️ <%= posts[0].likes %> likes</span>
+              <span><%= posts[0].createdAt.toDateString() %></span>
+            </div>
+          </div>
+        </a>
+      </article>
+
+      <% if (posts.length > 1) { %>
+        <h2 class="page-heading">Latest News</h2>
+        <div class="posts-grid">
+          <% posts.slice(1).forEach(function(post) { %>
+            <%- include('partials/post-card', { post: post }) %>
+          <% }) %>
+        </div>
+      <% } %>
+    <% } %>
+  </div>
+
+  <%- include('partials/sidebar') %>
+</div>
+
+<%- include('partials/footer') %>
