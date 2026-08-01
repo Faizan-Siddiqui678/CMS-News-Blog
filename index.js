@@ -1,6 +1,10 @@
 require("dotenv").config();
+const dns = require("dns");
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
 const express = require("express");
+const app = express();
+
 const mongoose = require("mongoose");
 const session = require("express-session");
 const compression = require("compression");
@@ -9,7 +13,6 @@ const path = require("path");
 const adminRoutes = require("./routes/adminRoutes");
 const publicRoutes = require("./routes/publicRoutes");
 
-const app = express();
 const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGO_URI;
 const SESSION_SECRET = process.env.SESSION_SECRET;
@@ -22,17 +25,10 @@ if (!MONGO_URI || !SESSION_SECRET) {
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// Gzips HTML/JSON/CSS/JS responses — cheap win, smaller payloads over the wire.
 app.use(compression());
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
-// maxAge: 0 in dev so edited CSS/JS/images show up on refresh without a
-// hard-reload; bump way up in production once assets stop changing on
-// every save. Uploaded images get unique filenames per upload (see
-// middleware/upload.js), so long caching is always safe for them even
-// in dev — a "new" image is always a new URL, never a stale one.
 app.use(express.static(path.join(__dirname, "public"), {
   maxAge: isProd ? "7d" : 0,
 }));
